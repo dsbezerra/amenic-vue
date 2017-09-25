@@ -36,8 +36,12 @@ nav {
     position: relative;
     min-height: 160px;
     max-height: 240px;
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    align-items: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
 
     & img {
@@ -47,7 +51,9 @@ nav {
         min-width: 50px;
         max-width: 100%;
         top: 50%;
-        transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+            -ms-transform: translateY(-50%);
+                transform: translateY(-50%);
     }
 
     & ul {

@@ -1,7 +1,7 @@
-import Home from '../components/Home/Home.vue'
-import Prices from '../components/Prices/Prices.vue'
-import Settings from '../components/Settings/Settings.vue'
-import MovieDetails from '../components/MovieDetails/MovieDetails.vue'
+const Home = () => import('../components/Home/Home.vue')
+const Prices = () => import('../components/Prices/Prices.vue')
+const Settings = () => import('../components/Settings/Settings.vue')
+const MovieDetails = () => import('../components/MovieDetails/MovieDetails.vue')
 
 export default [
     {

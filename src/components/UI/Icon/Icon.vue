@@ -23,6 +23,8 @@ export default {
 
 <style lang="scss" scoped>
 .amenic {
+    -webkit-transition: all 400ms ease;
+    -o-transition: all 400ms ease;
     transition: all 400ms ease;
     color: #fff;
     opacity: 0.2;

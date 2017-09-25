@@ -7,7 +7,6 @@
                 <div class="cinema">
                     <icon-ibicinemas width="60" />
                     <span>IBICINEMAS</span>
-                    <a :href="ibicinemas.website" target="_blank">Ver no site oficial</a>
                 </div>
                 <price-table :prices2d="ibicinemas.filter(price => price.is2D)" :prices3d="ibicinemas.filter(price => !price.is2D)" />
             </div>
@@ -19,7 +18,6 @@
                 <div class="cinema">
                     <icon-cinemais width="60" />
                     <span>Cinemais</span>
-                    <a :href="cinemais.website" target="_blank">Ver no site oficial</a>
                 </div>
                 <price-table :prices2d="cinemais.filter(price => price.is2D)" :prices3d="cinemais.filter(price => !price.is2D)" />
             </div>
@@ -55,6 +53,8 @@ export default {
         }
     },
     created() {
+
+        // TODO: create module in vuex
         this.isFetching.ibicinemas = true;
         this.$http.get(`${API_URI}/price?cinema=ibicinemas`)
             .then((res) => {
@@ -94,9 +94,16 @@ export default {
 }
 
 .cinema {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    align-items: center;
-    user-select: none;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 
     & span {
         font-size: 32px;
@@ -116,10 +123,14 @@ export default {
 }
 
 .slide-fade-enter-active {
+    -webkit-transition: all .3s ease;
+    -o-transition: all .3s ease;
     transition: all .3s ease;
 }
 
 .slide-fade-leave-active {
+    -webkit-transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    -o-transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
     transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
 
@@ -128,7 +139,9 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */
 
 {
-    transform: translateY(10px);
+    -webkit-transform: translateY(10px);
+        -ms-transform: translateY(10px);
+            transform: translateY(10px);
     opacity: 0;
 }
 </style>

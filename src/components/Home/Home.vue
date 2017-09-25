@@ -75,16 +75,25 @@ export default {
 }
 
 .movie-slider {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    justify-content: center;
-    flex-flow: wrap;
+    -webkit-box-pack: center;
+        -ms-flex-pack: center;
+            justify-content: center;
+    -ms-flex-flow: wrap;
+        flex-flow: wrap;
 }
 
 .slide-fade-enter-active {
+    -webkit-transition: all .3s ease;
+    -o-transition: all .3s ease;
     transition: all .3s ease;
 }
 
 .slide-fade-leave-active {
+    -webkit-transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    -o-transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
     transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
 }
 
@@ -93,7 +102,9 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */
 
 {
-    transform: translateY(10px);
+    -webkit-transform: translateY(10px);
+        -ms-transform: translateY(10px);
+            transform: translateY(10px);
     opacity: 0;
 }
 </style>

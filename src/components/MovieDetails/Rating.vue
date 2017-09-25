@@ -44,8 +44,12 @@ export default {
 
 <style lang="scss" scoped>
 .rating {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    align-items: center;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
 
     position: absolute;
     bottom: 5px;

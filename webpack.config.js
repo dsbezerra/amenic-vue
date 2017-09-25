@@ -90,6 +90,10 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
-    })
+    }),
+    new webpack.ContextReplacementPlugin(
+      /moment[\/\\]locale$/,
+      /pt-br|en/
+    )
   ])
 }
