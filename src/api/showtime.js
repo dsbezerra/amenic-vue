@@ -4,7 +4,7 @@ import { API_URI } from './helpers'
 
 export default {
     getShowtimes(movieId, cb, errCb) {
-        Vue.http.get(`${API_URI}/showtimes?movie=${movieId}`)
+        Vue.http.get(`${API_URI}/showtime?movie=${movieId}`)
             .then((res) => {
                 if (res.ok) {
                     return res.json()

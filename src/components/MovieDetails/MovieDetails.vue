@@ -1,61 +1,72 @@
 <template>
     <transition name="slide-fade">
-        <div class="movie-details">
-            <div class="title-trailer">
-                <div>
-                    <h1>{{ movie.title }}</h1>
-                    <p class="genres-runtime">
-                        {{ genresRuntime }}
-                    </p>
-                </div>
+        <div class="wrapper">
+            <div class="backdrop" :style="{ backgroundImage: 'url(' + movie.backdrop + ')'}">
+                <div class="effect" />
             </div>
-            <div class="movie-info">
-                <div class="left">
-                    <img class="poster" :src="movie.poster" />
-                </div>
-                <div class="right">
-                    <h1>Sinopse</h1>
-                    <p>{{ movie.plot }}</p>
-                    <rating v-if="movie.rating" :value="movie.rating" />
-                </div>
-            </div>
-            <divider />
-            <div v-if="movie.isInTheaters" class="showtime-info">
-                <div class="showtimes-header">
-                    <h1>Horários de Exibição</h1>
-                    <icon v-on:click.native="refresh()" name="refresh" size="medium" />
-                </div>
-                <spinner v-if="isFetchingShowtimes" />
-                <div v-if="getShowtimes.length !== 0">
-                    <div class="weekdays">
-                        <ul>
-                            <li v-for="(value, key, index) in weekdays" :key="key" v-on:click="updateWeekday(key)" class="weekday" :class="{ active: currentWeekday === key}">
-                                {{ value.label }}
-                            </li>
-                        </ul>
-                        <div class="indicator" ref="indicator" :style="{ left: indicator.leftX + 'px', width: indicator.width + 'px' }" />
+            <div class="movie-details">
+                <div class="title-trailer">
+                    <div>
+                        <h1>{{ movie.title }}</h1>
+                        <p class="genres-runtime">
+                            {{ genresRuntime }}
+                        </p>
                     </div>
-
-                    <transition name="showtime-fade" mode="out-in">
-                        <div class="showtime-container" :key="currentWeekday">
-                            <div class="cinema">
-                                <icon-ibicinemas width="50" />
-                                <span>IBICINEMAS</span>
-                            </div>
-                            <showtime :showtimes="ibiShowtimes" />
-
-                            <div class="cinema">
-                                <icon-cinemais width="50" />
-                                <span>Cinemais</span>
-                            </div>
-                            <showtime :showtimes="cinemaisShowtimes" />
-                        </div>
-                    </transition>
                 </div>
-            </div>
+                <div class="movie-info">
+                    <div class="left">
+                        <img class="poster" :src="movie.poster" />
+                    </div>
+                    <div class="right">
+                        <h1>Sinopse</h1>
+                        <p>{{ movie.synopsis }}</p>
+                        <rating v-if="movie.rating" :value="movie.rating" />
+                    </div>
+                </div>
+                <divider />
+                <div v-if="movie.trailer" class="trailer-section">
+                    <h1>Trailer</h1>
+                    <div class="iframe-wrapper">
+                        <iframe :src="trailer" width="100%" height="480px" frameborder="0" allowfullscreen />
+                    </div>
+                </div>
+                <div v-if="movie.cinemas" class="showtime-info">
+                    <div class="showtimes-header">
+                        <h1>Horários de Exibição</h1>
+                        <icon v-on:click.native="refresh()" name="refresh" size="medium" />
+                    </div>
+                    <spinner v-if="isFetchingShowtimes" />
+                    <div v-if="getShowtimes.length !== 0">
+                        <div class="weekdays">
+                            <ul>
+                                <li v-for="(value, key, index) in weekdays" :key="key" v-on:click="updateWeekday(key)" class="weekday" :class="{ active: currentWeekday === key}">
+                                    {{ value.label }}
+                                </li>
+                            </ul>
+                            <div class="indicator" ref="indicator" :style="{ left: indicator.leftX + 'px', width: indicator.width + 'px' }" />
+                        </div>
 
-            <h1 v-if="movie.isComingSoon" class="release-text">Estreia em: {{ releaseDate }}</h1>
+                        <transition name="showtime-fade" mode="out-in">
+                            <div class="showtime-container" :key="currentWeekday">
+                                <div class="cinema">
+                                    <icon-ibicinemas width="50" />
+                                    <span>IBICINEMAS</span>
+                                </div>
+                                <showtime :showtimes="ibiShowtimes" />
+
+                                <div class="cinema">
+                                    <icon-cinemais width="50" />
+                                    <span>Cinemais</span>
+                                </div>
+                                <showtime :showtimes="cinemaisShowtimes" />
+                            </div>
+                        </transition>
+                    </div>
+                </div>
+                <h1 v-if="!movie.cinemas" class="release-text">Estreia: {{ releaseDate }}</h1>
+            </div>
         </div>
+
     </transition>
 </template>
 
@@ -91,7 +102,7 @@ export default {
     },
     computed: {
         ...mapState({
-            movies: state => state.movies.movies,
+            movies: state => state.movies,
         }),
         ...mapGetters({
             showtimes: 'showtimesByMovie',
@@ -106,10 +117,10 @@ export default {
             return this.groupByWeekdays(this.getShowtimes)
         },
         ibiShowtimes() {
-            return this.groupedShowtimes[this.currentWeekday].showtimes['ibicinemas']
+            return this.groupedShowtimes[this.currentWeekday].showtimes['ibicinemas'] || []
         },
         cinemaisShowtimes() {
-            return this.groupedShowtimes[this.currentWeekday].showtimes['cinemais']
+            return this.groupedShowtimes[this.currentWeekday].showtimes['cinemais-34'] || []
         },
         genresRuntime() {
             let result = ''
@@ -132,6 +143,9 @@ export default {
 
             return parseDate(new Date(this.movie.releaseDate));
         },
+        trailer() {
+            return `https://www.youtube.com/embed/${this.movie.trailer}?rel=0&showinfo=0`
+        }
     },
     methods: {
         fetchShowtimes(movieId, force = false) {
@@ -168,7 +182,7 @@ export default {
                 label: 'Hoje',
                 date: moment(),
                 showtimes: {
-                    cinemais: [],
+                    'cinemais-34': [],
                     ibicinemas: [],
                 },
             };
@@ -188,7 +202,7 @@ export default {
                     label,
                     date: nextDate,
                     showtimes: {
-                        'cinemais': [],
+                        'cinemais-34': [],
                         'ibicinemas': [],
                     },
                 }
@@ -247,9 +261,9 @@ export default {
         getNameForVideoVersion(showtime) {
             let result = '';
 
-            if (showtime.availableIn2D) {
+            if (showtime.is2D) {
                 result = '2D';
-            } else if (showtime.availableIn3D) {
+            } else if (showtime.is3D) {
                 result = '3D';
             }
 
@@ -273,11 +287,11 @@ export default {
             arr.forEach((showtime) => {
                 if (showtime.weekday === 0) {
                     // Push to all weeekdays available
-                    keys.forEach(key => weekdays[key].showtimes[showtime.cinema].push(showtime));
+                    keys.forEach(key => weekdays[key].showtimes[showtime.cinemaId].push(showtime));
                 } else {
                     // Create key from weekday
-                    const key = `weekday-${showtime.weekday}`;
-                    weekdays[key].showtimes[showtime.cinema].push(showtime);
+                    const key = `weekday-${showtime.weekday - 1}`;
+                    weekdays[key].showtimes[showtime.cinemaId].push(showtime);
                 }
             });
 
@@ -291,7 +305,7 @@ export default {
                         if (item.national) {
                             audio = 'nat';
                         }
-                        let image = item.availableIn2D ? '2d' : '3d';
+                        let image = item.is2D ? '2d' : '3d';
                         return `${audio}-${image}`;
                     });
 
@@ -332,7 +346,7 @@ export default {
     },
     created() {
         // Replace for now
-        if (!this.movies.byId[this.id]) {
+        if (!this.movies.nowPlaying.data.byId[this.id] && !this.movies.upcoming.data.byId[this.id]) {
             this.$router.replace('/');
             return
         }
@@ -343,7 +357,7 @@ export default {
         this.fetchShowtimes(this.id)
 
         // TODO(diego): Remove ID from path and use action SET_MOVIE
-        this.movie = this.movies.byId[this.id]
+        this.movie = this.movies.nowPlaying.data.byId[this.id] || this.movies.upcoming.data.byId[this.id]
     }
 }
 </script>
@@ -354,14 +368,55 @@ export default {
     position: relative;
 }
 
+.wrapper {
+    position: relative;
+}
+
+.backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    height: 100%;
+    width: 100%;
+}
+
+.backdrop .effect {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: rgba(26, 26, 26, 0);
+    background: -moz-linear-gradient(top, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(26, 26, 26, 0)), color-stop(100%, rgba(26, 26, 26, 1)));
+    background: -webkit-linear-gradient(top, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+    background: -o-linear-gradient(top, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+    background: -ms-linear-gradient(top, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1a1a1a', endColorstr='#1a1a1a', GradientType=0);
+}
+
 .movie-details {
     padding: 0 10%;
     padding-top: 40px;
-    background-color: rgba(26, 26, 26, 0.99);
+    background: rgba(26, 26, 26, 1);
+    background: -moz-linear-gradient(top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.85) 50%, rgba(26, 26, 26, 1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(26, 26, 26, 1)), color-stop(50%, rgba(26, 26, 26, 0.85)), color-stop(100%, rgba(26, 26, 26, 1)));
+    background: -webkit-linear-gradient(top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.85) 50%, rgba(26, 26, 26, 1) 100%);
+    background: -o-linear-gradient(top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.85) 50%, rgba(26, 26, 26, 1) 100%);
+    background: -ms-linear-gradient(top, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.85) 50%, rgba(26, 26, 26, 1) 100%);
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 1) 0%, rgba(26, 26, 26, 0.85) 50%, rgba(26, 26, 26, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#1a1a1a', endColorstr='#1a1a1a', GradientType=0);
+    position: relative;
 
     & h1 {
         font-size: 2rem;
         font-family: 'Roboto Condensed', sans-serif;
+        font-weight: 300;
     }
 }
 
@@ -375,9 +430,11 @@ export default {
     }
 
     & p {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         line-height: 1.8rem;
-        color: #595959;
+        font-family: Roboto, sans-serif;
+        font-weight: 300 !important;
+        color: rgba(255, 255, 255, 0.6);
     }
 }
 
@@ -400,16 +457,13 @@ export default {
 .right {
     width: 100%;
     position: relative;
+    padding-bottom: 56px;
 }
 
 .title-trailer {
     display: flex;
     align-items: center;
     position: relative;
-
-    & h1 {
-        text-transform: capitalize;
-    }
 }
 
 .trailer {
@@ -433,6 +487,63 @@ export default {
         width: 100%;
         height: 200px;
         z-index: 24;
+    }
+}
+
+.trailer-section {
+    margin: 24px 0px;
+}
+
+.iframe-wrapper {
+    position: relative;
+    margin-top: 24px;
+}
+
+.trailer-section {
+    & .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1a1a1a;
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+    }
+
+    & .play-wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+
+        & .play-btn {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            transition: all 400ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                border: 2px solid #fff;
+            }
+            
+        }
+
+        & p {
+            margin-top: 12px;
+            font-size: 18px;
+        }
     }
 }
 
@@ -490,7 +601,7 @@ export default {
         width: 84px;
         height: 2px;
         background-color: #fff;
-        transition: all 200ms cubic-bezier(.56,.17,.01,.99);
+        transition: all 200ms cubic-bezier(.56, .17, .01, .99);
     }
 }
 
@@ -532,8 +643,7 @@ export default {
 }
 
 .showtime-fade-enter,
-.showtime-fade-leave-to
-{
+.showtime-fade-leave-to {
     transform: translateY(10px);
     opacity: 0;
 }

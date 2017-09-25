@@ -2,7 +2,10 @@
     <router-link :to="'/movie/' + movie.id" :movie="movie">
         <div class="movie">
             <div class="title">
-                <p>{{ movie.title }}</p>
+                <p>{{ movie.title }}
+                    <span v-if="movie.cinemas" class="extra">{{ cinemas }}</span>
+                    <span v-if="!movie.cinemas && movie.releaseDate" class="extra">{{ releaseDate }}</span>
+                </p>
             </div>
             <img :src="movie.poster" />
         </div>
@@ -14,6 +17,29 @@ export default {
     props: {
         movie: Object,
     },
+    computed: {
+        cinemas() {
+            let result = []
+            this.movie.cinemas.forEach(cinema => result.push(cinema.shortName))
+            return result.join(' - ')
+        },
+        releaseDate() {
+            let result = '';
+            const date = new Date(this.movie.releaseDate)
+            const d = this.addZero(date.getDate())
+            const m = this.addZero(date.getMonth() + 1)
+            result = `${d}/${m}/${date.getFullYear()}`
+            return result;
+        }
+    },
+    methods: {
+        addZero(n) {
+            if (n < 10) {
+                n = '0' + n
+            }
+            return n
+        }
+    }
 }
 </script>
 
@@ -22,9 +48,9 @@ export default {
     position: relative;
     display: inline-block;
     overflow: hidden;
-    width: 33vw;
-    max-width: 260px;
-    max-height: 490px;
+    width: 100%;
+    max-width: 300px;
+    max-height: 450px;
     background: rgba(0, 0, 0, 0.5);
     transition: all 400ms ease;
     z-index: 0;
@@ -53,8 +79,7 @@ export default {
 
     & img {
         max-width: 100%;
-        width: 100%;
-        height: 100%;
+        max-height: 100%;
         opacity: 0.4;
         transition: all 400ms ease;
     }
@@ -84,7 +109,7 @@ export default {
         bottom: 0;
         padding: 12px;
         box-sizing: border-box;
-        font-size: 24px;
+        font-size: 20px;
         display: inline-block;
         font-family: 'Roboto Condensed', sans-serif;
         color: #fff;
@@ -93,6 +118,13 @@ export default {
         white-space: normal;
         font-weight: 500;
         text-align: left;
+    }
+
+    & .extra {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 </style>

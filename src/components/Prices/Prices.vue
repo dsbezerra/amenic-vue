@@ -9,7 +9,7 @@
                     <span>IBICINEMAS</span>
                     <a :href="ibicinemas.website" target="_blank">Ver no site oficial</a>
                 </div>
-                <price-table :prices2d="ibicinemas.prices.filter(price => price.is2D)" :prices3d="ibicinemas.prices.filter(price => !price.is2D)" />
+                <price-table :prices2d="ibicinemas.filter(price => price.is2D)" :prices3d="ibicinemas.filter(price => !price.is2D)" />
             </div>
         </transition>
         <divider />
@@ -21,7 +21,7 @@
                     <span>Cinemais</span>
                     <a :href="cinemais.website" target="_blank">Ver no site oficial</a>
                 </div>
-                <price-table :prices2d="cinemais.prices.filter(price => price.is2D)" :prices3d="cinemais.prices.filter(price => !price.is2D)" />
+                <price-table :prices2d="cinemais.filter(price => price.is2D)" :prices3d="cinemais.filter(price => !price.is2D)" />
             </div>
         </transition>
     </div>
@@ -56,7 +56,7 @@ export default {
     },
     created() {
         this.isFetching.ibicinemas = true;
-        this.$http.get(`${API_URI}/prices?cinema=ibicinemas`)
+        this.$http.get(`${API_URI}/price?cinema=ibicinemas`)
             .then((res) => {
                 if (res.ok) {
                     return res.json()
@@ -68,7 +68,7 @@ export default {
             });
 
         this.isFetching.cinemais = true;
-        this.$http.get(`${API_URI}/prices?cinema=cinemais`)
+        this.$http.get(`${API_URI}/price?cinema=cinemais-34`)
             .then((res) => {
                 if (res.ok) {
                     return res.json()

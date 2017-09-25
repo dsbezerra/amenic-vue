@@ -26,7 +26,7 @@ const actions = {
             movieId,
             (data) => commit(types.SHOWTIMES_SUCCESS, {
                 movieId,
-                showtimes: data.showtimes,
+                showtimes: data,
             }),
             () => commit(types.SHOWTIMES_FAILURE, movieId)
         )

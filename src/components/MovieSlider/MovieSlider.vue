@@ -3,10 +3,10 @@
         <div class="movie-slider" :style="{ left: x + 'px' }">
             <movie v-for="movie of movies" :movie="movie" :key="movie.id" />
         </div>
-        <div class="gradient-effect left" v-on:mouseenter="slideRight" v-on:mouseleave="stopAnimation">
+        <div class="gradient-effect left" :class="{ visible: leftVisible }" v-on:mouseenter="slideRight" v-on:mouseleave="stopAnimation">
             <icon name="keyboard_arrow_left" size="big" />
         </div>
-        <div class="gradient-effect right" v-on:mouseenter="slideLeft" v-on:mouseleave="stopAnimation">
+        <div class="gradient-effect right" :class="{ visible: rightVisible }" v-on:mouseenter="slideLeft" v-on:mouseleave="stopAnimation">
             <icon name="keyboard_arrow_right" size="big" />
         </div>
     </section>
@@ -29,13 +29,15 @@ export default {
         },
         itemWidth: {
             type: Number,
-            default: 260,
+            default: 310,
         }
     },
 
     data() {
         return {
             x: 130,
+            leftVisible: false,
+            rightVisible: true,
             speed: 10,
             interval: null,
             containerWidth: null,
@@ -61,8 +63,11 @@ export default {
                     this.stopAnimation();
                     return;
                 }
-                
+
                 const MAX_RIGHT = -(itemWidth * movies.length + GAP - containerWidth);
+                
+                this.leftVisible = newX < -(itemWidth - GAP)
+                this.rightVisible = newX - (itemWidth + GAP) > MAX_RIGHT
                 if (dir < 0 && newX <= MAX_RIGHT) {
                     this.stopAnimation();
                     return;
@@ -107,7 +112,7 @@ export default {
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
-    padding: 20px 0px;
+    padding: 12px 0px;
     text-align: center;
 }
 
@@ -168,5 +173,46 @@ export default {
             right: 40%;
         }
     }
+
+    &.visible {
+        & i {
+            -webkit-animation: fade 2s infinite;
+            /* Safari 4.0 - 8.0 */
+            animation: fade 2s infinite;
+
+            &:hover {
+                 -webkit-animation: none;
+                animation: none;
+            }
+        }
+    }
 }
+
+
+/* Safari 4.0 - 8.0 */
+
+@-webkit-keyframes fade {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 </style>

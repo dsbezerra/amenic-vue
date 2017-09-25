@@ -1,19 +1,27 @@
 <template>
     <div class="container">
-        <spinner v-if="isFetching" />
+
+        <spinner v-if="nowPlaying.isFetching" />
         <transition name="slide-fade">
-            <div v-if="!isFetching">
+            <div v-if="!nowPlaying.isFetching">
                 <h1 class="header">Filmes em cartaz</h1>
-                <movie-slider :movies="inTheaters" />
-                <h1 class="header">Próximos lançamentos</h1>
-                <movie-slider :movies="comingSoon" />
+                <movie-slider :movies="nowPlayingMovies" />
             </div>
         </transition>
+
+        <spinner v-if="upcoming.isFetching" />
+        <transition name="slide-fade">
+            <div v-if="!upcoming.isFetching">
+                <h1 class="header">Próximos lançamentos</h1>
+                <movie-slider :movies="upcomingMovies" />
+            </div>
+        </transition>
+
     </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { appendParam } from '../../api/helpers'
 import MovieSlider from '../MovieSlider/MovieSlider.vue'
 import Spinner from '../UI/Spinner/Spinner.vue'
@@ -24,25 +32,30 @@ export default {
         Spinner,
     },
     computed: {
+        ...mapState({
+            nowPlaying: (state) => state.movies.nowPlaying,
+            upcoming: (state) => state.movies.upcoming,
+        }),
         ...mapGetters({
-            comingSoon: 'comingSoon',
-            inTheaters: 'inTheaters',
-            isFetching: 'isFetching',
-            isFetched: 'isFetched',
+            nowPlayingMovies: 'nowPlaying',
+            upcomingMovies: 'upcoming',
         }),
     },
     methods: {
-        fetchMovies(params) {
-            this.$store.dispatch('fetchMovies', params)
+        fetchMovies(type) {
+            switch (type) {
+                case 'now_playing': this.$store.dispatch('fetchNowPlaying'); break;
+                case 'upcoming': this.$store.dispatch('fetchUpcoming'); break;
+            }
         }
     },
     created() {
-        if (!this.isFetched) {
-            let params = appendParam(null, 'isInTheaters', true);
-            this.fetchMovies(params);
+        if (!this.nowPlaying.isFetched) {
+            this.fetchMovies('now_playing')
+        }
 
-            params = appendParam(null, 'isComingSoon', true);
-            this.fetchMovies(params);
+        if (!this.upcoming.isFetched) {
+            this.fetchMovies('upcoming')
         }
     }
 }
@@ -58,6 +71,7 @@ export default {
     font-family: 'Roboto Condensed', sans-serif;
     padding: 0 10%;
     margin: 24px 0px;
+    font-weight: 300;
 }
 
 .movie-slider {
