@@ -15,21 +15,25 @@
                 </div>
                 <div class="movie-info">
                     <div class="left">
-                        <img class="poster" :src="movie.poster" />
+                        <div class="trailer-poster" @click="seeTrailer($event)">
+                            <img class="poster" :src="movie.poster" />
+                            <icon v-if="movie.trailer" name="play_arrow" />
+                            <p v-if="movie.trailer" class="watch-trailer">Assistir trailer</p>
+                        </div>
                     </div>
                     <div class="right">
                         <h1>Sinopse</h1>
-                        <p>{{ movie.synopsis }}</p>
+                        <p>{{ movie.synopsis ? movie.synopsis : "Indisponível" }}</p>
                         <rating v-if="movie.rating" :value="movie.rating" />
                     </div>
                 </div>
                 <divider />
-                <div v-if="movie.trailer" class="trailer-section">
-                    <h1>Trailer</h1>
-                    <div class="iframe-wrapper">
-                        <iframe :src="trailer" width="100%" height="480px" frameborder="0" allowfullscreen />
-                    </div>
-                </div>
+                <trailer v-if="movie.trailer && trailer.isWatching" 
+                :background="movie.poster"
+                :position="trailer.position" 
+                :box="trailer.box" 
+                :trailer="movie.trailer" 
+                :onClose="closeTrailer.bind(this)" />
                 <div v-if="movie.cinemas" class="showtime-info">
                     <div class="showtimes-header">
                         <h1>Horários de Exibição</h1>
@@ -66,13 +70,12 @@
                 <h1 v-if="!movie.cinemas" class="release-text">Estreia: {{ releaseDate }}</h1>
             </div>
         </div>
-
     </transition>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
-import { parseDate, getNameOfMonth } from '../../utils/time';
+import { parseDate, getNameOfMonth } from '../../utils/time'
 import Showtime from '../Showtime/Showtime.vue'
 import Rating from './Rating.vue'
 import Divider from '../UI/Divider/Divider.vue'
@@ -80,6 +83,8 @@ import Icon from '../UI/Icon/Icon.vue'
 import IconCinemais from '../UI/Icon/IconCinemais.vue'
 import IconIbicinemas from '../UI/Icon/IconIbicinemas.vue'
 import Spinner from '../UI/Spinner/Spinner.vue'
+
+import Trailer from '../Trailer/Trailer.vue'
 
 import moment from 'moment'
 import _ from 'lodash'
@@ -99,6 +104,7 @@ export default {
         Spinner,
         Showtime,
         Rating,
+        Trailer,
     },
     computed: {
         ...mapState({
@@ -142,9 +148,6 @@ export default {
             }
 
             return parseDate(new Date(this.movie.releaseDate));
-        },
-        trailer() {
-            return `https://www.youtube.com/embed/${this.movie.trailer}?rel=0&showinfo=0`
         }
     },
     methods: {
@@ -291,7 +294,9 @@ export default {
                 } else {
                     // Create key from weekday
                     const key = `weekday-${showtime.weekday - 1}`;
-                    weekdays[key].showtimes[showtime.cinemaId].push(showtime);
+                    if (weekdays[key]) {
+                        weekdays[key].showtimes[showtime.cinemaId].push(showtime);
+                    }
                 }
             });
 
@@ -330,6 +335,45 @@ export default {
             this.currentWeekday = newWeekday
             // Update indicator position
             this.calculateIndicator()
+        },
+        seeTrailer(event) {
+            const { target } = event
+            if (target) {
+                // Get start positions
+                const X = this.getOffset(target, 'offsetLeft') - window.scrollX
+                const Y = this.getOffset(target, 'offsetTop') - window.scrollY
+
+                this.trailer = {
+                    isWatching: true,
+                    position: {
+                        left: X,
+                        top: Y,
+                    },
+                    box: {
+                        width: target.clientWidth,
+                        height: target.clientHeight,
+                    }
+                }
+            }
+        },
+        getOffset(element, prop) {
+            if (prop !== 'offsetTop' && prop !== 'offsetLeft') {
+                throw new Error('prop must be offsetTop or offsetLeft')
+            }
+
+            let copy = Object.assign(element, {})
+            let total = copy[prop]
+            while(copy.offsetParent) {
+                copy = copy.offsetParent
+                total += copy[prop]
+            }
+
+            return total
+        },
+        closeTrailer() {
+            this.trailer = {
+                isWatching: false,
+            }
         }
     },
     data() {
@@ -341,6 +385,17 @@ export default {
             indicator: {
                 width: 84,
                 leftX: 0,
+            },
+            trailer: {
+                isWatching: false,
+                position: {
+                    left: 0,
+                    top: 0,
+                },
+                box: {
+                    width: 0,
+                    left: 0,
+                }
             }
         }
     },
@@ -444,10 +499,68 @@ export default {
     margin-top: 10px;
 }
 
+.trailer-poster {
+    max-height: 450px;
+    position: relative;
+
+    &:hover {
+        cursor: pointer;
+        & i {
+            transform: translate(-50%, -50%) scale(3);
+        }
+
+        & .watch-trailer {
+            opacity: 1;
+            max-height: 45px;
+        }
+    }
+
+    & i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        border: 1px solid white;
+        background-color: rgba(0, 0, 0, 0.2);
+        pointer-events: none;
+    }
+}
+
 .poster {
     width: 100%;
     height: auto;
 }
+
+.watch-trailer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0 6px;
+    overflow: hidden;
+    width: 100%;
+    height: 40px;
+    box-sizing: border-box;
+    display: flex;
+    display: -webkit-flex;
+    transition: all 400ms ease;
+    background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 1) 100%);
+    /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 1) 100%);
+    /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 1) 100%);
+    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#000000', GradientType=0);
+    /* IE6-9 */
+    & p {
+        text-overflow: ellipsis;
+        font-size: 12px !important;
+        color: white !important;
+    }
+    pointer-events: none;
+}
+
 
 .left {
     width: 260px;
@@ -464,87 +577,6 @@ export default {
     display: flex;
     align-items: center;
     position: relative;
-}
-
-.trailer {
-    position: absolute;
-    right: 0;
-
-    font-size: 1.4rem;
-    color: #595959;
-    font-family: 'Roboto Condensed', sans-serif;
-
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    transform-origin: top right;
-    transition: all 400ms ease-in-out;
-
-    &:hover {
-        color: #fff;
-        cursor: pointer;
-        background: rgba(60, 60, 60, 1);
-
-        width: 100%;
-        height: 200px;
-        z-index: 24;
-    }
-}
-
-.trailer-section {
-    margin: 24px 0px;
-}
-
-.iframe-wrapper {
-    position: relative;
-    margin-top: 24px;
-}
-
-.trailer-section {
-    & .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #1a1a1a;
-        opacity: 0.6;
-
-        &:hover {
-            opacity: 0.5;
-            cursor: pointer;
-        }
-    }
-
-    & .play-wrapper {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-
-        & .play-btn {
-            background: #1a1a1a;
-            padding: 10px;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            transition: all 400ms ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &:hover {
-                border: 2px solid #fff;
-            }
-            
-        }
-
-        & p {
-            margin-top: 12px;
-            font-size: 18px;
-        }
-    }
 }
 
 .showtime-info {
@@ -630,7 +662,7 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */
 
 {
-    transform: translateX(20px);
+    transform: translateY(20px);
     opacity: 0;
 }
 

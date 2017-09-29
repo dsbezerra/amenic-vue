@@ -1,5 +1,5 @@
 <template>
-    <h1 class="header">Confiugurações</h1>
+    <h1 class="header">Configurações</h1>
 </template>
 
 <<script>

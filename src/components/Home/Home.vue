@@ -1,6 +1,5 @@
 <template>
     <div class="container">
-
         <spinner v-if="nowPlaying.isFetching" />
         <transition name="slide-fade">
             <div v-if="!nowPlaying.isFetching">
@@ -16,7 +15,6 @@
                 <movie-slider :movies="upcomingMovies" />
             </div>
         </transition>
-
     </div>
 </template>
 
@@ -79,10 +77,10 @@ export default {
     display: -ms-flexbox;
     display: flex;
     -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
     -ms-flex-flow: wrap;
-        flex-flow: wrap;
+    flex-flow: wrap;
 }
 
 .slide-fade-enter-active {
@@ -103,8 +101,8 @@ export default {
 
 {
     -webkit-transform: translateY(10px);
-        -ms-transform: translateY(10px);
-            transform: translateY(10px);
+    -ms-transform: translateY(10px);
+    transform: translateY(10px);
     opacity: 0;
 }
 </style>

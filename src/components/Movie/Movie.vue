@@ -26,8 +26,8 @@ export default {
         releaseDate() {
             let result = '';
             const date = new Date(this.movie.releaseDate)
-            const d = this.addZero(date.getDate())
-            const m = this.addZero(date.getMonth() + 1)
+            const d = this.addZero(date.getUTCDate())
+            const m = this.addZero(date.getUTCMonth() + 1)
             result = `${d}/${m}/${date.getFullYear()}`
             return result;
         }

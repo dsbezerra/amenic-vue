@@ -1,28 +1,30 @@
 <template>
-    <div id="container">
-        <h1 class="header">Tabela de Preços</h1>
-        <spinner v-if="isFetching.ibicinemas" />
-        <transition name="slide-fade">
-            <div v-if="!isFetching.ibicinemas">
-                <div class="cinema">
-                    <icon-ibicinemas width="60" />
-                    <span>IBICINEMAS</span>
+    <transition name="slide-fade">
+        <div id="container">
+            <h1 class="header">Tabela de Preços</h1>
+            <spinner v-if="isFetching.ibicinemas" />
+            <transition name="slide-fade">
+                <div v-if="!isFetching.ibicinemas">
+                    <div class="cinema">
+                        <icon-ibicinemas width="60" />
+                        <span>IBICINEMAS</span>
+                    </div>
+                    <price-table :prices2d="ibicinemas.filter(price => price.is2D)" :prices3d="ibicinemas.filter(price => !price.is2D)" />
                 </div>
-                <price-table :prices2d="ibicinemas.filter(price => price.is2D)" :prices3d="ibicinemas.filter(price => !price.is2D)" />
-            </div>
-        </transition>
-        <divider />
-        <spinner v-if="isFetching.cinemais" />
-        <transition name="slide-fade">
-            <div v-if="!isFetching.cinemais">
-                <div class="cinema">
-                    <icon-cinemais width="60" />
-                    <span>Cinemais</span>
+            </transition>
+            <divider />
+            <spinner v-if="isFetching.cinemais" />
+            <transition name="slide-fade">
+                <div v-if="!isFetching.cinemais">
+                    <div class="cinema">
+                        <icon-cinemais width="60" />
+                        <span>Cinemais</span>
+                    </div>
+                    <price-table :prices2d="cinemais.filter(price => price.is2D)" :prices3d="cinemais.filter(price => !price.is2D)" />
                 </div>
-                <price-table :prices2d="cinemais.filter(price => price.is2D)" :prices3d="cinemais.filter(price => !price.is2D)" />
-            </div>
-        </transition>
-    </div>
+            </transition>
+        </div>
+    </transition>
 </template>
 
 <script>
@@ -98,12 +100,12 @@ export default {
     display: -ms-flexbox;
     display: flex;
     -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
     -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 
     & span {
         font-size: 32px;
@@ -140,8 +142,8 @@ export default {
 
 {
     -webkit-transform: translateY(10px);
-        -ms-transform: translateY(10px);
-            transform: translateY(10px);
+    -ms-transform: translateY(10px);
+    transform: translateY(10px);
     opacity: 0;
 }
 </style>
