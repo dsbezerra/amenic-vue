@@ -124,7 +124,7 @@ export default {
         disableScroll('html')
     },
     mounted() {
-        const { trailer, iframe } = this.$refs;
+        const { trailer, iframe } = this.$refs
         if (trailer) {
             const { left, top } = this.position
             trailer.style.left = left + 'px'
