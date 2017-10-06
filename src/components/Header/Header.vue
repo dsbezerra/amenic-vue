@@ -27,7 +27,7 @@ import Icon from '../UI/Icon/Icon.vue'
 export default {
     components: {
         Icon,
-    }
+    },
 }
 </script>
 

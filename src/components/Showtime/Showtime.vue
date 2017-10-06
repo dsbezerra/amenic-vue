@@ -14,7 +14,7 @@
             </div>
         </li>
         <li v-if="!showtimes.length">
-            <p class="info">Sem exibições</p>
+            <p class="info">Nenhuma exibição</p>
         </li>
     </ul>
 </template>

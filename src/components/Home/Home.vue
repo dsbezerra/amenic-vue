@@ -4,7 +4,7 @@
         <transition name="slide-fade">
             <div v-if="!nowPlaying.isFetching">
                 <h1 class="header">Filmes em cartaz</h1>
-                <movie-slider :movies="nowPlayingMovies" />
+                <movie-slider id="home/now_playing" :movies="nowPlayingMovies" />
             </div>
         </transition>
 
@@ -12,13 +12,14 @@
         <transition name="slide-fade">
             <div v-if="!upcoming.isFetching">
                 <h1 class="header">Próximos lançamentos</h1>
-                <movie-slider :movies="upcomingMovies" />
+                <movie-slider id="home/upcoming" :movies="upcomingMovies" />
             </div>
         </transition>
     </div>
 </template>
 
 <script>
+import { get } from '../../utils/object'
 import { mapGetters, mapState } from 'vuex'
 import { appendParam } from '../../api/helpers'
 import MovieSlider from '../MovieSlider/MovieSlider.vue'

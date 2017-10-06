@@ -34,9 +34,12 @@ export const getNameOfMonth = (month, abbr = false) => {
  * Parses a Date format to text day month year
  * @param date Date to parse
  */
-export const parseDate = (date, abbr = false) => {
+export const parseDate = (date, abbr = false, omitYearIfSame = true) => {
     if (!date) return 'Data não disponível';
-  
+
+    const now = new Date();
+    const nowY = now.getUTCFullYear();
+
     const d = date.getUTCDate();
     const m = date.getUTCMonth();
     const y = date.getUTCFullYear();
@@ -44,8 +47,18 @@ export const parseDate = (date, abbr = false) => {
     let mText = MONTHS[m];
     if (abbr) {
       mText = mText.substring(0, 3);
-      return `${d} ${mText} ${y}`;
+      
+      if (y === nowY && omitYearIfSame) {
+        return `${d} ${mText}`;
+      } else {
+        return `${d} ${mText} ${y}`;
+      } 
     }
-  
-    return `${d} de ${mText} de ${y}`;
+    
+    if (y === nowY && omitYearIfSame) {
+      return `${d} de ${mText}`;
+    } else {
+      return `${d} de ${mText} de ${y}`;
+    }
+    
   }

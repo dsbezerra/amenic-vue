@@ -1,4 +1,7 @@
-export const API_URI = process.env.NODE_ENV !== 'production' ? 'http://localhost:8000/api' : 'https://amenic.herokuapp.com/api'
+
+const BASE_URI = process.env.NODE_ENV !== 'production' ? 'http://localhost:8000' : 'https://amenic.herokuapp.com'
+export const STATIC_URI = BASE_URI;
+export const API_URI = BASE_URI + "/api";
 
 // Params structure
 // Param {

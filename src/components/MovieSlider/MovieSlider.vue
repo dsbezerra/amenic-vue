@@ -13,8 +13,10 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Icon from '../UI/Icon/Icon.vue'
 import Movie from '../Movie/Movie.vue'
+import { get } from '../../utils/object'
 
 export default {
     components: {
@@ -23,6 +25,11 @@ export default {
     },
 
     props: {
+        id: String,
+        name: {
+            type: String,
+            default: 'MovieSlider',
+        },
         movies: {
             type: Array,
             default: [],
@@ -32,9 +39,39 @@ export default {
             default: 310,
         }
     },
+    computed: {
+        ...mapState({
+            state: function (state) {
+                const { name, id } = this;
 
+                // Create a high order component
+                const parts = id.split('/');
+
+                let route, tag;
+                if (parts.length == 2) {
+                    route = parts[0];
+                    tag = parts[1];
+                } else {
+                    tag = parts[0]
+                    route = 'any'
+                }
+
+                if (!route || !tag) {
+                    throw new Error('component must have route and tag defined');
+                }  
+
+                this.route = route;
+                this.tag = `${name}:${tag}`
+
+                return get(state, `ui.${route}.${name}:${tag}`)
+            }
+        })
+    },
     data() {
         return {
+            route: null,
+            tag: null,
+            
             x: 130,
             leftVisible: false,
             rightVisible: true,
@@ -43,7 +80,6 @@ export default {
             containerWidth: null,
         }
     },
-
     methods: {
         slideLeft() {
             this.startAnimation(-1);
@@ -93,15 +129,37 @@ export default {
 
     created() {
         this.onResize = this.onResize.bind(this);
+        if (!!this.state) {
+            const { x, leftVisible, rightVisible, speed, interval, containerWidth } = this.state;
+            this.x = x
+            this.leftVisible = leftVisible
+            this.rightVisible = rightVisible
+            this.speed = speed
+            this.interval = interval
+            this.containerWidth = containerWidth
+        }
     },
-
     mounted() {
         window.addEventListener('resize', this.onResize)
         this.onResize();
     },
-
     beforeDestroy() {
         window.removeEventListener('resize', this.onResize);
+        
+        // Save state to vuex store
+        // TODO(diego): Create utility
+        this.$store.dispatch('updateUi', {
+            route: this.route,
+            tag: this.tag,
+            __state: {
+                x: this.x,
+                leftVisible: this.leftVisible,
+                rightVisible: this.rightVisible,
+                speed: this.speed,
+                interval: this.interval,
+                containerWidth: this.containerWidth,
+            }
+        })
     }
 }
 </script>

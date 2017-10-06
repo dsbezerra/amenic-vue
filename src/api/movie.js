@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import { API_URI, buildQueryString } from './helpers'
+import { API_URI, STATIC_URI } from './helpers'
 
 export default {
-    getNowPlaying(cb, errCb) {
-        Vue.http.get(`${API_URI}/movie/now_playing`)
+    getMovie(id, cb, errCb) {
+        Vue.http.get(`${API_URI}/movie/${id}`)
         .then((res) => {
             if (res.ok) {
                 return res.json()
@@ -13,12 +13,23 @@ export default {
             }
         })
     },
-    getUpcoming(cb, errCb) {
-        Vue.http.get(`${API_URI}/movie/upcoming`)
+    getNowPlaying(cb, errCb) {
+        Vue.http.get(`${STATIC_URI}/movies/now_playing.json`)
         .then((res) => {
             if (res.ok) {
                 return res.json()
-                    .then(({ data }) => cb(data))
+                    .then((data) => cb(data))
+            } else {
+                errCb(res)
+            }
+        })
+    },
+    getUpcoming(cb, errCb) {
+        Vue.http.get(`${STATIC_URI}/movies/upcoming.json`)
+        .then((res) => {
+            if (res.ok) {
+                return res.json()
+                    .then((data) => cb(data))
             } else {
                 errCb(res)
             }

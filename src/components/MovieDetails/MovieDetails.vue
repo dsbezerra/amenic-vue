@@ -1,74 +1,78 @@
 <template>
     <transition name="slide-fade">
         <div class="wrapper">
-            <div class="backdrop" :style="{ backgroundImage: 'url(' + movie.backdrop + ')'}">
-                <div class="effect" />
-            </div>
-            <div class="movie-details">
-                <div class="title-trailer">
-                    <div>
-                        <h1>{{ movie.title }}</h1>
-                        <p class="genres-runtime">
-                            {{ genresRuntime }}
-                        </p>
-                    </div>
+            <div v-if="!isFetchingMovie && !!movie">
+                <div class="backdrop" :style="{ backgroundImage: 'url(' + movie.backdrop + ')'}">
+                    <div class="effect" />
                 </div>
-                <div class="movie-info">
-                    <div class="left">
-                        <div class="trailer-poster" @click="seeTrailer($event)">
-                            <img class="poster" :src="movie.poster" />
-                            <icon v-if="movie.trailer" name="play_arrow" />
-                            <p v-if="movie.trailer" class="watch-trailer">Assistir trailer</p>
+                <div class="movie-details">
+                    <div class="title-trailer">
+                        <div>
+                            <h1>{{ movie.title }}</h1>
+                            <p class="genres-runtime">
+                                {{ genresRuntime }}
+                            </p>
                         </div>
                     </div>
-                    <div class="right">
-                        <h1>Sinopse</h1>
-                        <p>{{ movie.synopsis ? movie.synopsis : "Indisponível" }}</p>
-                        <rating v-if="movie.rating" :value="movie.rating" />
-                    </div>
-                </div>
-                <divider />
-                <trailer v-if="movie.trailer && trailer.isWatching" 
-                :background="movie.poster"
-                :position="trailer.position" 
-                :box="trailer.box" 
-                :trailer="movie.trailer" 
-                :onClose="closeTrailer.bind(this)" />
-                <div v-if="movie.cinemas" class="showtime-info">
-                    <div class="showtimes-header">
-                        <h1>Horários de Exibição</h1>
-                        <icon v-on:click.native="refresh()" name="refresh" size="medium" />
-                    </div>
-                    <spinner v-if="isFetchingShowtimes" />
-                    <div v-if="getShowtimes.length !== 0">
-                        <div class="weekdays">
-                            <ul>
-                                <li v-for="(value, key, index) in weekdays" :key="key" v-on:click="updateWeekday(key)" class="weekday" :class="{ active: currentWeekday === key}">
-                                    {{ value.label }}
-                                </li>
-                            </ul>
-                            <div class="indicator" ref="indicator" :style="{ left: indicator.leftX + 'px', width: indicator.width + 'px' }" />
-                        </div>
-
-                        <transition name="showtime-fade" mode="out-in">
-                            <div class="showtime-container" :key="currentWeekday">
-                                <div class="cinema">
-                                    <icon-ibicinemas width="50" />
-                                    <span>IBICINEMAS</span>
-                                </div>
-                                <showtime :showtimes="ibiShowtimes" />
-
-                                <div class="cinema">
-                                    <icon-cinemais width="50" />
-                                    <span>Cinemais</span>
-                                </div>
-                                <showtime :showtimes="cinemaisShowtimes" />
+                    <div class="movie-info">
+                        <div class="left">
+                            <div class="trailer-poster" @click="seeTrailer($event)">
+                                <img class="poster" :src="movie.poster" />
+                                <icon v-if="movie.trailer" name="play_arrow" />
+                                <p v-if="movie.trailer" class="watch-trailer">Assistir trailer</p>
                             </div>
-                        </transition>
+                        </div>
+                        <div class="right">
+                            <h1>Sinopse</h1>
+                            <p>{{ movie.synopsis ? movie.synopsis : "Indisponível" }}</p>
+                            <rating v-if="movie.rating" :value="movie.rating" />
+                        </div>
                     </div>
+                    <divider />
+                    <trailer v-if="movie.trailer && trailer.isWatching" :background="movie.poster" :position="trailer.position" :box="trailer.box" :trailer="movie.trailer" :onClose="closeTrailer.bind(this)" />
+                    <div v-if="isMovieReleased" class="showtime-info">
+                        <div class="showtimes-header">
+                            <h1>Programação</h1>
+                            <icon v-on:click.native="refresh()" name="refresh" size="medium" />
+                        </div>
+                        <spinner v-if="isFetchingShowtimes" />
+                        <div v-if="getShowtimes.length !== 0">
+                            <div class="weekdays">
+                                <ul>
+                                    <li v-for="(value, key, index) in weekdays" :key="key" v-on:click="updateWeekday(key)" class="weekday" :class="{ active: currentWeekday === key}">
+                                        {{ value.label }}
+                                    </li>
+                                </ul>
+                                <div class="indicator" ref="indicator" :style="{ left: indicator.leftX + 'px', width: indicator.width + 'px' }" />
+                            </div>
+
+                            <transition name="showtime-fade" mode="out-in">
+                                <div class="showtime-container" :key="currentWeekday">
+                                    <div class="cinema">
+                                        <icon-ibicinemas width="50" />
+                                        <span>IBICINEMAS</span>
+                                    </div>
+                                    <showtime :showtimes="ibiShowtimes" />
+
+                                    <div class="cinema">
+                                        <icon-cinemais width="50" />
+                                        <span>Cinemais</span>
+                                    </div>
+                                    <showtime :showtimes="cinemaisShowtimes" />
+                                </div>
+                            </transition>
+                        </div>
+                    </div>
+                   
+                    <div class="release" v-if="!isMovieReleased">
+                        <h1>Estreia</h1>
+                        <p>{{ releaseDate }}</p>
+                    </div>
+                    
+                
                 </div>
-                <h1 v-if="!movie.cinemas" class="release-text">Estreia: {{ releaseDate }}</h1>
             </div>
+            <spinner v-if="isFetchingMovie" />
         </div>
     </transition>
 </template>
@@ -107,17 +111,29 @@ export default {
         Trailer,
     },
     computed: {
-        ...mapState({
-            movies: state => state.movies,
-        }),
         ...mapGetters({
+            movie: 'movie',
+            movies: 'movies',
+            isFetchingMovie: 'isFetchingMovie',
             showtimes: 'showtimesByMovie',
         }),
+        isMovieReleased() {
+            const { movie } = this;
+            if (!movie || !movie.releaseDate) {
+                return false
+            }
+
+            const now = Date.now()
+            const date = new Date(movie.releaseDate)
+            return now - date.getTime() > 0
+        },
         isFetchingShowtimes() {
-            return this.showtimes(this.id).isFetching
+            const showtimes = this.showtimes(this.id)
+            return !showtimes || showtimes.isFetching
         },
         getShowtimes() {
-            return this.showtimes(this.id).data
+            const showtimes = this.showtimes(this.id)
+            return showtimes ? showtimes.data : []
         },
         groupedShowtimes() {
             return this.groupByWeekdays(this.getShowtimes)
@@ -151,6 +167,20 @@ export default {
         }
     },
     methods: {
+        setMovie(movie) {
+            if (movie == undefined) {
+                return;
+            }
+
+            this.$store.dispatch('setMovie', movie)
+        },
+        fetchMovie(movieId) {
+            if (!movieId) {
+                throw new Error('invalid ID')
+            }
+
+            this.$store.dispatch('fetchMovie', movieId)
+        },
         fetchShowtimes(movieId, force = false) {
             this.$store.dispatch('fetchShowtimes', {
                 movieId,
@@ -363,7 +393,7 @@ export default {
 
             let copy = Object.assign(element, {})
             let total = copy[prop]
-            while(copy.offsetParent) {
+            while (copy.offsetParent) {
                 copy = copy.offsetParent
                 total += copy[prop]
             }
@@ -378,7 +408,6 @@ export default {
     },
     data() {
         return {
-            movie: {},
             weekdaysOriginal: null,
             weekdays: {},
             currentWeekday: '',
@@ -400,19 +429,20 @@ export default {
         }
     },
     created() {
-        // Replace for now
-        if (!this.movies.nowPlaying.data.byId[this.id] && !this.movies.upcoming.data.byId[this.id]) {
-            this.$router.replace('/');
+        const { nowPlaying, upcoming } = this.movies;
+        if (!nowPlaying.byId[this.id] && !upcoming.byId[this.id]) {
+            this.fetchMovie(this.id)
             return
         }
 
+        this.setMovie(nowPlaying.byId[this.id] || upcoming.byId[this.id])
         this.setupWeekdays()
-
-        // Fetch showtimes
-        this.fetchShowtimes(this.id)
-
-        // TODO(diego): Remove ID from path and use action SET_MOVIE
-        this.movie = this.movies.nowPlaying.data.byId[this.id] || this.movies.upcoming.data.byId[this.id]
+    },
+    watch: {
+        movie: function(newMovie) {
+            this.setupWeekdays()
+            this.fetchShowtimes(newMovie.id)
+        }
     }
 }
 </script>
@@ -593,8 +623,14 @@ export default {
     }
 }
 
-.release-text {
+.release {
     margin-top: 24px;
+
+    p {
+        font-size: 24px;
+        color: #595959;
+        margin-top: 12px;
+    }
 }
 
 .weekdays {
@@ -605,6 +641,7 @@ export default {
     & ul {
         list-style: none;
         height: 50px;
+        overflow: hidden;
 
         & li {
             font-size: 18px;

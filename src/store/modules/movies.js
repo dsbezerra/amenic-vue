@@ -19,11 +19,14 @@ const state = {
       byId: {},
       allIds: [],
     }
-  }
+  },
+  isFetchingMovie: false,
 }
 
 // Getters
 const getters = {
+  isFetchingMovie: state => state.isFetchingMovie,
+  movie: state => state.movie,
   movies: state => ({
     upcoming: state.upcoming.data,
     nowPlaying: state.nowPlaying.data,
@@ -34,6 +37,17 @@ const getters = {
 
 // Actions
 const actions = {
+  setMovie( { commit, state }, movie) {
+    commit(types.SET_MOVIE, movie)
+  },
+  fetchMovie({ commit, state }, id) {
+    commit(types.MOVIE_REQUEST)
+    movie.getMovie(
+      id,
+      (data) => commit(types.MOVIE_SUCCESS, data),
+      () => commit(types.MOVIE_FAILURE)
+    )
+  },
   fetchNowPlaying({ commit, state }) {
     commit(types.NOW_PLAYING_REQUEST)
     movie.getNowPlaying(
@@ -52,8 +66,21 @@ const actions = {
 
 // Mutations
 const mutations = {
-  [types.SET_MOVIE](state, id) {
-    state.movie = state.movies.byId[id];
+  [types.SET_MOVIE](state, movie) {
+    state.movie = movie
+  },
+
+  [types.MOVIE_REQUEST](state) {
+    state.isFetchingMovie = true
+  },
+
+  [types.MOVIE_SUCCESS](state, data) {
+    state.isFetchingMovie = false
+    state.movie = data
+  },
+
+  [types.MOVIE_FAILURE](state) {
+    state.isFetchingMovie = false
   },
 
   [types.NOW_PLAYING_REQUEST](state) {

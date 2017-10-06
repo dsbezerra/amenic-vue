@@ -55,7 +55,7 @@ export default {
     bottom: 5px;
 
     & span {
-        color: #595959;
+        color: rgba(255, 255, 255, 0.6);
         margin-left: 24px;
     }
 }
