@@ -19,7 +19,6 @@
                             <div class="trailer-poster" @click="seeTrailer($event)">
                                 <img class="poster" :src="movie.poster" />
                                 <icon v-if="movie.trailer" name="play_arrow" />
-                                <p v-if="movie.trailer" class="watch-trailer">Assistir trailer</p>
                             </div>
                         </div>
                         <div class="right">
@@ -536,12 +535,7 @@ export default {
     &:hover {
         cursor: pointer;
         & i {
-            transform: translate(-50%, -50%) scale(3);
-        }
-
-        & .watch-trailer {
-            opacity: 1;
-            max-height: 45px;
+            transform: translate(-50%, -50%) scale(4);
         }
     }
 
@@ -550,7 +544,7 @@ export default {
         top: 50%;
         left: 50%;
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0);
+        transform: translate(-50%, -50%) scale(3);
         border-radius: 50%;
         border: 1px solid white;
         background-color: rgba(0, 0, 0, 0.2);
