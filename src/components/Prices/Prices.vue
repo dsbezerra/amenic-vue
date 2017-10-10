@@ -89,12 +89,6 @@ export default {
     padding: 0 10%;
 }
 
-.header {
-    font-size: 42px;
-    font-family: 'Roboto Condensed', sans-serif;
-    margin: 24px 0px;
-}
-
 .cinema {
     display: -webkit-box;
     display: -ms-flexbox;

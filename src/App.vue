@@ -28,4 +28,12 @@ export default {
 body {
   background: #1a1a1a;
 }
+
+.header {
+    font-size: 42px;
+    font-family: 'Roboto Condensed', sans-serif;
+    padding: 0 10%;
+    margin: 24px 0px;
+    font-weight: 300;
+}
 </style>

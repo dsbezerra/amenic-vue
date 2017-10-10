@@ -65,14 +65,6 @@ export default {
     padding: 4px;
 }
 
-.header {
-    font-size: 42px;
-    font-family: 'Roboto Condensed', sans-serif;
-    padding: 0 10%;
-    margin: 24px 0px;
-    font-weight: 300;
-}
-
 .movie-slider {
     display: -webkit-box;
     display: -ms-flexbox;
