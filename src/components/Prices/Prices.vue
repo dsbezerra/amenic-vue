@@ -89,6 +89,10 @@ export default {
     padding: 0 10%;
 }
 
+.header {
+    padding: 0;
+}
+
 .cinema {
     display: -webkit-box;
     display: -ms-flexbox;
