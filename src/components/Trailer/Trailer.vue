@@ -43,6 +43,8 @@
             opacity: 0;
         }
 
+        border: 1px solid #000;
+
         transition: 400ms ease;
     }
 }
